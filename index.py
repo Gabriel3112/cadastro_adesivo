@@ -138,12 +138,12 @@ class SearchFrame(ctk.CTkFrame):
 
         status_label = ctk.CTkLabel(self, textvariable=master.exist_adesivo)
         btn_register = ctk.CTkButton(self, text='Cadastrar')
-"""""
+        """
         if master.exist_adesivo:
             status_label.grid(row=3, column=0, padx=10)
             btn_register.grid(row=3, column=1, padx=(0, 10))
         else:
-"""""
+        """
 
 
 
