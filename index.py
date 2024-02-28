@@ -38,21 +38,23 @@ class App(ctk.CTk):
 
         keyboard.add_hotkey('ctrl+f1', self.select_directory)
 
-        self.img_back = ctk.CTkImage(Image.open("assets/icons/arrow_back_FILL0_wght400_GRAD0_opsz24.png"),
-                                     size=(30, 30))
+        self.img_back = ctk.CTkImage(Image.open("assets/icons/icons8-back-ios-17-glyph/icons8-back-30.png"),
+                                     size=(30, 30), )
 
         self.user = User()
         self.input_adesivo = ctk.StringVar()
-        self.exist_adesivo = False
 
-        self.btn_back_to_search = ctk.CTkButton(self, text="Voltar", image=self.img_back, command=self.back_to_search)
-        self.header_frame = HeaderFrame(master=self, fg_color='#1A55B1').pack(fill=ctk.X, expand=False, side=ctk.TOP)
+        self.btn_back_to_search = ctk.CTkButton(self, text="Voltar", image=self.img_back, command=self.back_to_search, fg_color='transparent')
+        self.header_frame = HeaderFrame(master=self, fg_color='#1A55B1', corner_radius=0).pack(fill=ctk.X, expand=False, side=ctk.TOP)
         self.search_frame = SearchFrame(master=self, fg_color='transparent')
         self.search_frame.place(relx=0.5, rely=0.5, anchor=ctk.CENTER)
 
         self.information_frame = InformationFrame(master=self, width=350, height=150)
 
-        ctk.CTkLabel(self, text='Developed by S2 Luiz Gabriel - V0.1').pack(fill=ctk.X, expand=False, side=ctk.BOTTOM)
+        self.status_label = ctk.CTkLabel(self.search_frame, text='Adesivo não encontrado.\n Deseja cadastrar ?')
+        self.btn_register = ctk.CTkButton(self.search_frame, text='Cadastrar', fg_color='transparent')
+
+        ctk.CTkLabel(self, text='Desenvolvido por S2 Luiz Gabriel - V0.1').pack(fill=ctk.X, expand=False, side=ctk.BOTTOM)
 
     def search_adesivo(self):
         if len(self.input_adesivo.get()) > 4:
@@ -62,7 +64,6 @@ class App(ctk.CTk):
                 df.set_index("ADESIVO", inplace=True)
 
                 if self.input_adesivo.get() in df.index:
-                    self.exist_adesivo = True
                     ano_adesivo = df.loc[self.input_adesivo.get(), "ANO"]
                     nome_guerra = df.loc[self.input_adesivo.get(), "NOME DE GUERRA"]
                     nome_completo = df.loc[self.input_adesivo.get(), "NOME COMPLETO"]
@@ -86,14 +87,15 @@ class App(ctk.CTk):
                                   saram=saram, placa=placa, modelo=modelo, marca=marca, ano_veiculo=ano_veiculo,
                                   cor=cor, habilitacao=habilitacao, val_habilitacao=val_habilitacao, status=status)
                     self.input_adesivo.set("")
-                    self.btn_back_to_search.place(y=150, x=120, anchor=ctk.NW)
+                    self.btn_back_to_search.place(y=100, x=120, anchor=ctk.NW)
                     self.information_frame.place(relx=0.5, rely=0.5, anchor=ctk.CENTER)
                     self.search_frame.place_forget()
                 else:
-                    self.exist_adesivo = False
+                    self.status_label.grid(row=3, column=0, padx=10)
+                    self.btn_register.grid(row=4, column=0, padx=(10, 10))
 
     def search_adesivo_threaded(self):
-        thread = threading.Thread(target=self.search_adesivo())
+        thread = threading.Thread(target=self.search_adesivo)
         thread.start()
 
     def select_directory(self):
@@ -136,14 +138,8 @@ class SearchFrame(ctk.CTkFrame):
             self, text="Continuar", command=master.search_adesivo_threaded
         ).grid(row=2, column=0, padx=10, pady=(0, 10), sticky="snew")
 
-        status_label = ctk.CTkLabel(self, textvariable=master.exist_adesivo)
-        btn_register = ctk.CTkButton(self, text='Cadastrar')
-        """
-        if master.exist_adesivo:
-            status_label.grid(row=3, column=0, padx=10)
-            btn_register.grid(row=3, column=1, padx=(0, 10))
-        else:
-        """
+
+
 
 
 
@@ -166,7 +162,7 @@ class InformationFrame(ctk.CTkFrame):
         ctk.CTkLabel(self, text="Saram").grid(row=3, column=2, pady=1, padx=10)
         ctk.CTkLabel(self, text="Contato").grid(row=3, column=3, pady=1, padx=10)
 
-        ctk.CTkLabel(self, textvariable=master.user.posto).grid(row=2, column=0, padx=10)
+        ctk.CTkEntry(self, textvariable=master.user.posto).grid(row=2, column=0, padx=10)
         ctk.CTkLabel(self, textvariable=master.user.nome_guerra).grid(row=2, column=1, padx=10)
         ctk.CTkLabel(self, textvariable=master.user.nome_completo).grid(row=2, column=2, padx=10, columnspan=2)
 
@@ -187,13 +183,13 @@ class InformationFrame(ctk.CTkFrame):
         ctk.CTkLabel(self, text="Marca").grid(row=6, column=1, pady=1, padx=10)
         ctk.CTkLabel(self, text="Modelo").grid(row=6, column=2, pady=1, padx=10)
         ctk.CTkLabel(self, text="Cor").grid(row=6, column=3, pady=1, padx=10)
-        ctk.CTkLabel(self, text="Ano").grid(row=6, column=4, pady=1, padx=10)
+        ctk.CTkLabel(self, text="Ano").grid(row=8, column=0, pady=1, padx=10)
 
         ctk.CTkLabel(self, textvariable=master.user.veiculo.placa).grid(row=7, column=0, pady=(0, 3), padx=10)
         ctk.CTkLabel(self, textvariable=master.user.veiculo.marca).grid(row=7, column=1, pady=(0, 3), padx=10)
         ctk.CTkLabel(self, textvariable=master.user.veiculo.modelo).grid(row=7, column=2, pady=(0, 3), padx=10)
         ctk.CTkLabel(self, textvariable=master.user.veiculo.cor).grid(row=7, column=3, pady=(0, 3), padx=10)
-        ctk.CTkLabel(self, textvariable=master.user.veiculo.ano_veiculo).grid(row=7, column=4, pady=(0, 3), padx=10)
+        ctk.CTkLabel(self, textvariable=master.user.veiculo.ano_veiculo).grid(row=9, column=0, pady=(0, 3), padx=10)
 
 class User:
     def __init__(self):
